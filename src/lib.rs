@@ -26,15 +26,38 @@ pub struct KeyNumbers(Vec<u8>);
 
 impl Eq for KeyNumbers {}
 
+/// missing length are filled with `32`s, then compare like a vector
 impl PartialEq for KeyNumbers {
   fn eq(&self, other: &KeyNumbers) -> bool {
-    self.0 == other.0
+    let xs = &self.0;
+    let ys = &other.0;
+    let size = max(xs.len(), ys.len());
+    for idx in 0..size {
+      let x = xs.get(idx).or(Some(&32));
+      let y = ys.get(idx).or(Some(&32));
+      if x != y {
+        return false;
+      }
+    }
+    true
   }
 }
 
+/// missing length are filled with `32`s, then compare like a vector
 impl Ord for KeyNumbers {
   fn cmp(&self, other: &KeyNumbers) -> Ordering {
-    self.0.cmp(&other.0)
+    let xs = &self.0;
+    let ys = &other.0;
+    let size = max(xs.len(), ys.len());
+    for idx in 0..size {
+      let x = xs.get(idx).or(Some(&32));
+      let y = ys.get(idx).or(Some(&32));
+      match x.cmp(&y) {
+        Ordering::Equal => continue,
+        x => return x,
+      }
+    }
+    Ordering::Equal
   }
 }
 
