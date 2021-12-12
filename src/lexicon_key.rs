@@ -9,9 +9,7 @@
 //!
 //! 65 was picked since it's easier to bisect 0~64 at 32, and 0~32 at 16, etc.
 //!
-//! Notice that `a` equals `aT`, internally `[39]` equals `[39, 32]`.
-//! and `a`(`aT`) is greater than `aS`, this is different from normal order of strings.
-//! So it's called `BalancedKey`, while the lexicographical one is called `LexiconKey`.
+//! Generated key matches lexiongraphic order.
 
 use std::cmp::{max, Ordering};
 use std::fmt::Display;
@@ -20,22 +18,22 @@ const CHARSET: &str = "+-/0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqr
 
 /// create it like:
 /// ```rust
-/// let _  = bisection_key::BalancedKey::new("a");
+/// let _  = bisection_key::LexiconKey::new("a");
 /// ```
 #[derive(Debug)]
-pub struct BalancedKey(Vec<u8>);
+pub struct LexiconKey(Vec<u8>);
 
-impl Eq for BalancedKey {}
+impl Eq for LexiconKey {}
 
 /// missing length are filled with `32`s, then compare like a vector
-impl PartialEq for BalancedKey {
-  fn eq(&self, other: &BalancedKey) -> bool {
+impl PartialEq for LexiconKey {
+  fn eq(&self, other: &LexiconKey) -> bool {
     let xs = &self.0;
     let ys = &other.0;
     let size = max(xs.len(), ys.len());
     for idx in 0..size {
-      let x = xs.get(idx).or(Some(&32));
-      let y = ys.get(idx).or(Some(&32));
+      let x = u8_or_neg(xs.get(idx));
+      let y = u8_or_neg(ys.get(idx));
       if x != y {
         return false;
       }
@@ -45,14 +43,14 @@ impl PartialEq for BalancedKey {
 }
 
 /// missing length are filled with `32`s, then compare like a vector
-impl Ord for BalancedKey {
-  fn cmp(&self, other: &BalancedKey) -> Ordering {
+impl Ord for LexiconKey {
+  fn cmp(&self, other: &LexiconKey) -> Ordering {
     let xs = &self.0;
     let ys = &other.0;
     let size = max(xs.len(), ys.len());
     for idx in 0..size {
-      let x = xs.get(idx).or(Some(&32));
-      let y = ys.get(idx).or(Some(&32));
+      let x = u8_or_neg(xs.get(idx));
+      let y = u8_or_neg(ys.get(idx));
       match x.cmp(&y) {
         Ordering::Equal => continue,
         x => return x,
@@ -62,13 +60,13 @@ impl Ord for BalancedKey {
   }
 }
 
-impl PartialOrd for BalancedKey {
-  fn partial_cmp(&self, other: &BalancedKey) -> Option<Ordering> {
+impl PartialOrd for LexiconKey {
+  fn partial_cmp(&self, other: &LexiconKey) -> Option<Ordering> {
     Some(self.cmp(other))
   }
 }
 
-impl Display for BalancedKey {
+impl Display for LexiconKey {
   fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
     let mut buf: String = String::new();
     for i in &self.0 {
@@ -78,7 +76,7 @@ impl Display for BalancedKey {
   }
 }
 
-impl BalancedKey {
+impl LexiconKey {
   pub fn new(s: &str) -> Result<Self, String> {
     let mut buf: Vec<u8> = vec![];
     for c in s.chars() {
@@ -87,22 +85,7 @@ impl BalancedKey {
         None => return Err(format!("invalid character for bisection key: {:?}", c)),
       }
     }
-    Ok(BalancedKey(buf))
-  }
-
-  pub fn strip_last_mut(&mut self) {
-    while !self.0.is_empty() && self.0[self.0.len() - 1] == 32 {
-      self.0.pop();
-    }
-  }
-
-  // if last element is `T`, they can safely be removed to shorten the key
-  pub fn strip_last(&self) -> Self {
-    let mut xs = self.0.to_owned();
-    while !xs.is_empty() && xs[xs.len() - 1] == 32 {
-      xs.pop();
-    }
-    BalancedKey(xs.to_owned())
+    Ok(LexiconKey(buf))
   }
 
   pub fn bisect(&self, next: &Self) -> Result<Self, String> {
@@ -113,8 +96,8 @@ impl BalancedKey {
     let mut change: Option<NumberChange> = None;
 
     for i in 0..max(self.0.len(), next.0.len()) {
-      let curr = self.0.get(i).or(Some(&32)).unwrap();
-      let edge = next.0.get(i).or(Some(&32)).unwrap();
+      let curr = self.0.get(i).or(Some(&0)).unwrap();
+      let edge = next.0.get(i).or(Some(&0)).unwrap();
 
       let delta = *edge as i8 - *curr as i8;
 
@@ -215,11 +198,13 @@ impl BalancedKey {
         self, next
       )),
       Some(NumberChange::Increased) => {
-        mid.push(32 + 2);
+        // leave some spaces: 0 1 2 3
+        mid.push(4);
         Self(mid).checked()
       }
       Some(NumberChange::Decreased) => {
-        mid.push(32 - 2);
+        // leave some spaces: 61 62 63 64
+        mid.push(60);
         Self(mid).checked()
       }
     }
@@ -233,10 +218,15 @@ impl BalancedKey {
       } else if *item == 64 {
         ys.push(64);
       } else if *item == 63 {
-        ys.push(64);
+        ys.push(63);
+        // add some space here: "0 1 2 3"
+        ys.push(4);
+        return Self(ys).checked();
+      } else if *item == 62 {
+        ys.push(63);
         return Self(ys).checked();
       } else {
-        // max 62
+        // max 61
         ys.push(*item + 2);
         return Self(ys).checked();
       }
@@ -254,6 +244,11 @@ impl BalancedKey {
         ys.push(0);
       } else if *item == 1 {
         ys.push(0);
+        // leave some space here: "61 62 63 64"
+        ys.push(60);
+        return Self(ys).checked();
+      } else if *item == 2 {
+        ys.push(1);
         return Self(ys).checked();
       } else {
         // min 2
@@ -261,8 +256,10 @@ impl BalancedKey {
         return Self(ys).checked();
       }
     }
-    ys.push(32 - 2);
-    Self(ys).checked()
+    Err(format!(
+      "trailing 0 is invalid during bisect_beggining: {}",
+      self
+    ))
   }
 
   pub fn promote_from(&self, idx: usize, change: NumberChange) -> Result<Self, String> {
@@ -321,5 +318,13 @@ fn promote_from(base: Vec<u8>, origin_idx: usize, change: NumberChange) -> Resul
         return Err(format!("not found position to promote: {:?}", base));
       }
     }
+  }
+}
+
+/// -1 for None
+fn u8_or_neg(x: Option<&u8>) -> i64 {
+  match x {
+    Some(x) => *x as i64,
+    None => -1,
   }
 }
