@@ -1,12 +1,12 @@
-use bisection_key::KeyNumbers;
+use bisection_key::BalancedKey;
 
 fn main() -> Result<(), String> {
-  // let a = KeyNumbers::new("aV")?;
-  // let b = KeyNumbers::new("b")?;
+  // let a = BalancedKey::new("aV")?;
+  // let b = BalancedKey::new("b")?;
   // println!("{}", a.bisect(&b)?);
 
-  let mut base = KeyNumbers::new("a")?;
-  let next = KeyNumbers::new("b")?;
+  let mut base = BalancedKey::new("a")?;
+  let next = BalancedKey::new("b")?;
   let mut ret: Vec<String> = vec![];
   for _ in 0..100 {
     base = base.bisect(&next)?;
@@ -16,7 +16,7 @@ fn main() -> Result<(), String> {
 
   println!("{:?}", ret);
 
-  let mut base = KeyNumbers::new("a")?;
+  let mut base = BalancedKey::new("a")?;
   let mut ret: Vec<String> = vec![];
   for _ in 0..100 {
     base = base.bisect_end()?;
