@@ -23,6 +23,12 @@ const CHARSET: &str = "+-/0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqr
 #[derive(Debug)]
 pub struct LexiconKey(Vec<u8>);
 
+impl Default for LexiconKey {
+  fn default() -> Self {
+    Self::new("T").unwrap()
+  }
+}
+
 impl Eq for LexiconKey {}
 
 /// missing length are filled with `32`s, then compare like a vector

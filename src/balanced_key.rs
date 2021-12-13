@@ -25,6 +25,12 @@ const CHARSET: &str = "+-/0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqr
 #[derive(Debug)]
 pub struct BalancedKey(Vec<u8>);
 
+impl Default for BalancedKey {
+  fn default() -> Self {
+    Self::new("T").unwrap()
+  }
+}
+
 impl Eq for BalancedKey {}
 
 /// missing length are filled with `32`s, then compare like a vector
