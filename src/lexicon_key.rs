@@ -150,7 +150,7 @@ impl LexiconKey {
               if reach == 1 {
                 mid.push(64);
               } else {
-                mid.push((*curr + edge) >> 1);
+                mid.push((*curr + edge + 64) >> 1);
               }
               return Self(mid).checked();
             }
@@ -183,7 +183,7 @@ impl LexiconKey {
                 mid.push(64);
                 mid = promote_from(mid, i, NumberChange::Decreased)?;
               } else {
-                mid.push((*curr + edge) >> 1);
+                mid.push((*curr + edge + 64) >> 1);
               }
               return Self(mid).checked();
             }
@@ -204,7 +204,9 @@ impl LexiconKey {
       }
       Some(NumberChange::Decreased) => {
         // leave some spaces: 61 62 63 64
+        let size = mid.len();
         mid.push(60);
+        mid = promote_from(mid, size, NumberChange::Decreased)?;
         Self(mid).checked()
       }
     }
@@ -218,9 +220,7 @@ impl LexiconKey {
       } else if *item == 64 {
         ys.push(64);
       } else if *item == 63 {
-        ys.push(63);
-        // add some space here: "0 1 2 3"
-        ys.push(4);
+        ys.push(64);
         return Self(ys).checked();
       } else if *item == 62 {
         ys.push(63);

@@ -1,3 +1,5 @@
+extern crate bisection_key;
+
 use bisection_key::BalancedKey;
 
 fn main() -> Result<(), String> {
