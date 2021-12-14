@@ -7,6 +7,10 @@ fn main() -> Result<(), String> {
   // let b = BalancedKey::new("b")?;
   // println!("{}", a.bisect(&b)?);
 
+  let a0 = BalancedKey::new("aV")?;
+  let a1 = BalancedKey::new("b-")?;
+  a0.bisect(&a1)?;
+
   let mut base = BalancedKey::new("a")?;
   let next = BalancedKey::new("b")?;
   let mut ret: Vec<String> = vec![];

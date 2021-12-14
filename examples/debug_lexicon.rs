@@ -31,7 +31,7 @@ fn main() -> Result<(), String> {
   let mut base = LexiconKey::new("B")?;
   let edge = LexiconKey::new("A")?;
 
-  for _ in 0..100 {
+  for _ in 0..1000 {
     base = base.bisect(&edge)?;
     println!("{}", base);
   }

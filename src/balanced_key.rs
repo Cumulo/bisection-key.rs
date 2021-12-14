@@ -173,7 +173,7 @@ impl BalancedKey {
               if reach == 1 {
                 mid.push(64);
               } else {
-                mid.push((*curr + edge) >> 1);
+                mid.push((*curr + edge + 64) >> 1);
               }
               return Self(mid).checked();
             }
