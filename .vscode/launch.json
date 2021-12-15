@@ -1,0 +1,130 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in library 'bisection_key'",
+      "cargo": {
+        "args": ["test", "--no-run", "--lib", "--package=bisection_key"],
+        "filter": {
+          "name": "bisection_key",
+          "kind": "lib"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug example 'debug_lexicon'",
+      "cargo": {
+        "args": ["build", "--example=debug_lexicon", "--package=bisection_key"],
+        "filter": {
+          "name": "debug_lexicon",
+          "kind": "example"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in example 'debug_lexicon'",
+      "cargo": {
+        "args": [
+          "test",
+          "--no-run",
+          "--example=debug_lexicon",
+          "--package=bisection_key"
+        ],
+        "filter": {
+          "name": "debug_lexicon",
+          "kind": "example"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug example 'debug_balanced'",
+      "cargo": {
+        "args": [
+          "build",
+          "--example=debug_balanced",
+          "--package=bisection_key"
+        ],
+        "filter": {
+          "name": "debug_balanced",
+          "kind": "example"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in example 'debug_balanced'",
+      "cargo": {
+        "args": [
+          "test",
+          "--no-run",
+          "--example=debug_balanced",
+          "--package=bisection_key"
+        ],
+        "filter": {
+          "name": "debug_balanced",
+          "kind": "example"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug integration test 'balanced_key_test'",
+      "cargo": {
+        "args": [
+          "test",
+          "--no-run",
+          "--test=balanced_key_test",
+          "--package=bisection_key"
+        ],
+        "filter": {
+          "name": "balanced_key_test",
+          "kind": "test"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug integration test 'lexicon_key_test'",
+      "cargo": {
+        "args": [
+          "test",
+          "--no-run",
+          "--test=lexicon_key_test",
+          "--package=bisection_key"
+        ],
+        "filter": {
+          "name": "lexicon_key_test",
+          "kind": "test"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    }
+  ]
+}
